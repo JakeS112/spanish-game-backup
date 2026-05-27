@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Béisbol Dominicano! - Legends of the DR</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts: display + body pair -->
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 – MAIN MENU
+══════════════════════════════════════════ -->
+<div id="screen-menu" class="screen active">
+  <div class="menu-bg-stars"></div>
+
+  <!-- Dominican flag stripe accent (top) -->
+  <div class="flag-stripe top">
+    <div class="flag-blue"></div>
+    <div class="flag-red"></div>
+  </div>
+
+  <div class="menu-content">
+    <div class="logo-wrapper">
+      <div class="logo-baseball">⚾</div>
+      <h1 class="logo-title">¡Béisbol<br><span>Dominicano!</span></h1>
+      <p class="logo-sub">Legends of the Dominican Republic</p>
+    </div>
+
+    <div class="menu-buttons">
+      <button class="btn btn-primary" id="btn-play">⚾ ¡Jugar Ahora!</button>
+      <button class="btn btn-secondary" id="btn-how">🏟️ How to Play</button>
+    </div>
+
+    <div class="menu-players-preview">
+      <span>🇩🇴 Big Papi · Pedro · Tatis Jr. · Juan Soto · Vlad · Manny · Cano · Pujols · Reyes · Beltre 🇩🇴</span>
+    </div>
+  </div>
+
+  <!-- Dominican flag stripe accent (bottom) -->
+  <div class="flag-stripe bottom">
+    <div class="flag-red"></div>
+    <div class="flag-blue"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 – HOW TO PLAY
+══════════════════════════════════════════ -->
+<div id="screen-howto" class="screen">
+  <div class="howto-content">
+    <h2>🏟️ How to Play</h2>
+    <div class="howto-cards">
+      <div class="howto-card">
+        <div class="howto-icon">👁️</div>
+        <p>Watch the <strong>ball</strong> approach</p>
+      </div>
+      <div class="howto-card">
+        <div class="howto-icon">⌨️</div>
+        <p>Press <strong>SPACE</strong> or <strong>Tap</strong> to swing!</p>
+      </div>
+      <div class="howto-card">
+        <div class="howto-icon">🎯</div>
+        <p>Time your swing in the <strong>hit zone</strong></p>
+      </div>
+      <div class="howto-card">
+        <div class="howto-icon">🏆</div>
+        <p>3 outs per inning · 3 innings total</p>
+      </div>
+    </div>
+    <div class="hit-legend">
+      <span class="hit-hr">🔥 HOME RUN</span>
+      <span class="hit-triple">⚡ TRIPLE</span>
+      <span class="hit-double">💥 DOUBLE</span>
+      <span class="hit-single">✅ SINGLE</span>
+      <span class="hit-out">❌ OUT</span>
+    </div>
+    <button class="btn btn-primary" id="btn-howto-back">← Back to Menu</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3 – GAME
+══════════════════════════════════════════ -->
+<div id="screen-game" class="screen">
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-block">
+      <span class="hud-label">INNING</span>
+      <span class="hud-value" id="hud-inning">1</span>
+    </div>
+    <div class="hud-block hud-center">
+      <div class="hud-label">DOMINICAN LEGENDS</div>
+      <div class="hud-score" id="hud-score">0</div>
+    </div>
+    <div class="hud-block">
+      <span class="hud-label">OUTS</span>
+      <div id="hud-outs" class="out-dots">
+        <span class="out-dot" id="out-0"></span>
+        <span class="out-dot" id="out-1"></span>
+        <span class="out-dot" id="out-2"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BASES indicator -->
+  <div id="bases-display">
+    <div class="bases-diamond">
+      <div class="base base-second" id="base-2"></div>
+      <div class="base base-third"  id="base-3"></div>
+      <div class="base base-first"  id="base-1"></div>
+      <div class="base base-home"></div>
+    </div>
+  </div>
+
+  <!-- STADIUM / CANVAS AREA -->
+  <div id="stadium-wrapper">
+    <canvas id="game-canvas" width="800" height="420"></canvas>
+
+    <!-- Crowd layer (CSS animated) -->
+    <div id="crowd-layer">
+      <div class="crowd-row row1"></div>
+      <div class="crowd-row row2"></div>
+    </div>
+
+    <!-- Swing prompt -->
+    <div id="swing-prompt" class="swing-prompt hidden">SWING! <span>SPACE / TAP</span></div>
+  </div>
+
+  <!-- BATTER INFO BAR -->
+  <div id="batter-bar">
+    <div id="batter-portrait" class="batter-portrait"></div>
+    <div class="batter-info">
+      <div id="batter-name" class="batter-name">—</div>
+      <div class="batter-stats">
+        <span id="stat-power">PWR: —</span>
+        <span id="stat-contact">CON: —</span>
+      </div>
+    </div>
+    <div class="batter-result-area">
+      <div id="hit-result" class="hit-result"></div>
+    </div>
+  </div>
+
+  <!-- COUNT display -->
+  <div id="count-display">
+    <span class="count-label">B</span>
+    <span class="count-pip" id="b0"></span>
+    <span class="count-pip" id="b1"></span>
+    <span class="count-pip" id="b2"></span>
+    <span class="count-label">  |  S</span>
+    <span class="count-pip strike-pip" id="s0"></span>
+    <span class="count-pip strike-pip" id="s1"></span>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4 – WALK-UP INTRO (per batter)
+══════════════════════════════════════════ -->
+<div id="screen-walkup" class="screen">
+  <div class="walkup-bg"></div>
+  <div class="walkup-content">
+    <div id="walkup-flag">🇩🇴</div>
+    <div id="walkup-portrait-big" class="walkup-portrait-big"></div>
+    <div id="walkup-name" class="walkup-name"></div>
+    <div id="walkup-subtitle" class="walkup-subtitle"></div>
+    <div id="walkup-bar" class="walkup-bar">
+      <div class="bar-item"><span>PWR</span><div class="bar-fill" id="wup-pwr"></div></div>
+      <div class="bar-item"><span>CON</span><div class="bar-fill" id="wup-con"></div></div>
+    </div>
+    <div id="walkup-genre" class="walkup-genre"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 5 – GAME OVER
+══════════════════════════════════════════ -->
+<div id="screen-gameover" class="screen">
+  <div class="gameover-content">
+    <div id="go-trophy">🏆</div>
+    <h2 id="go-title">¡Juego Terminado!</h2>
+    <div id="go-score-block">
+      <div class="go-score-label">FINAL SCORE</div>
+      <div id="go-final-score" class="go-final-score">0</div>
+    </div>
+    <div id="go-breakdown" class="go-breakdown"></div>
+    <div id="go-grade" class="go-grade"></div>
+    <div class="go-buttons">
+      <button class="btn btn-primary" id="btn-restart">⚾ Play Again</button>
+      <button class="btn btn-secondary" id="btn-menu">🏠 Main Menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     OVERLAYS
+══════════════════════════════════════════ -->
+<!-- Home Run celebration -->
+<div id="overlay-homerun" class="overlay hidden">
+  <div class="hr-fireworks"></div>
+  <div class="hr-text">¡JONRÓN!</div>
+  <div class="hr-subtext" id="hr-player-name"></div>
+  <div class="hr-stars">⭐ 🌟 ⭐ 🌟 ⭐</div>
+</div>
+
+<!-- Hit announcement -->
+<div id="overlay-hit" class="overlay overlay-sm hidden">
+  <div class="hit-announce" id="hit-announce-text"></div>
+</div>
+
+<!-- Audio context unlock notice -->
+<div id="audio-notice" class="audio-notice hidden">🔊 Click anywhere for music!</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -655,71 +655,80 @@ const Renderer = {
       c.fillRect(s * (W / 8), fieldTop, W / 8, H - fieldTop);
     }
 
-    // Infield dirt circle
+    // Field layout constants — everything centered on W * 0.5
+    const cx  = W * 0.50;  // horizontal center (home plate & pitcher)
+    const homeY    = H * 0.88;
+    const firstX   = cx + W * 0.14;  // 1st base (right)
+    const firstY   = H * 0.70;
+    const secondX  = cx;             // 2nd base (center, up)
+    const secondY  = H * 0.55;
+    const thirdX   = cx - W * 0.14;  // 3rd base (left)
+    const thirdY   = H * 0.70;
+    const moundX   = cx;
+    const moundY   = H * 0.64;
+
+    // Infield dirt — large ellipse centered on the diamond
     c.beginPath();
-    c.ellipse(W * 0.22, H * 0.82, 80, 50, 0, 0, Math.PI * 2);
+    c.ellipse(cx, H * 0.72, W * 0.18, H * 0.20, 0, 0, Math.PI * 2);
     c.fillStyle = '#C2855A';
     c.fill();
 
     // Pitcher's mound
     c.beginPath();
-    c.ellipse(W * 0.38, H * 0.62, 24, 14, 0, 0, Math.PI * 2);
+    c.ellipse(moundX, moundY, 24, 14, 0, 0, Math.PI * 2);
     c.fillStyle = '#c4a06e';
     c.fill();
 
-    // Home plate area
+    // Home plate area dirt
     c.beginPath();
-    c.ellipse(W * 0.14, H * 0.82, 18, 11, 0, 0, Math.PI * 2);
+    c.ellipse(cx, homeY, 22, 12, 0, 0, Math.PI * 2);
     c.fillStyle = '#c4a06e';
     c.fill();
 
     // Home plate (white pentagon)
     c.fillStyle = 'white';
-    c.fillRect(W * 0.135, H * 0.84, 14, 10);
+    c.fillRect(cx - 7, homeY - 5, 14, 10);
 
-    // Foul lines
+    // Foul lines — from home plate to corners of outfield wall
     c.strokeStyle = 'rgba(255,255,255,0.5)';
     c.lineWidth = 1.5;
     c.beginPath();
-    c.moveTo(W * 0.14, H * 0.82);
+    c.moveTo(cx, homeY);
     c.lineTo(0, H * 0.35);
     c.stroke();
     c.beginPath();
-    c.moveTo(W * 0.14, H * 0.82);
-    c.lineTo(W * 0.55, H * 0.35);
+    c.moveTo(cx, homeY);
+    c.lineTo(W, H * 0.35);
     c.stroke();
 
     // Base paths
-    c.strokeStyle = 'rgba(255,255,255,0.3)';
-    c.lineWidth = 1;
-    // 1st base line
-    c.beginPath();
-    c.moveTo(W * 0.14, H * 0.82);
-    c.lineTo(W * 0.28, H * 0.62);
-    c.stroke();
-    // 3rd base line
-    c.beginPath();
-    c.moveTo(W * 0.14, H * 0.82);
-    c.lineTo(W * 0.07, H * 0.62);
-    c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,0.4)';
+    c.lineWidth = 1.5;
+    // Home → 1st
+    c.beginPath(); c.moveTo(cx, homeY); c.lineTo(firstX, firstY); c.stroke();
+    // 1st → 2nd
+    c.beginPath(); c.moveTo(firstX, firstY); c.lineTo(secondX, secondY); c.stroke();
+    // 2nd → 3rd
+    c.beginPath(); c.moveTo(secondX, secondY); c.lineTo(thirdX, thirdY); c.stroke();
+    // 3rd → Home
+    c.beginPath(); c.moveTo(thirdX, thirdY); c.lineTo(cx, homeY); c.stroke();
 
-    // Bases (small squares at positions)
-    const baseColor = '#FFFFFF';
-    c.fillStyle = baseColor;
+    // Bases (small rotated squares)
+    c.fillStyle = '#FFFFFF';
     // 1st base
-    c.save(); c.translate(W * 0.28, H * 0.62); c.rotate(0.5);
+    c.save(); c.translate(firstX, firstY); c.rotate(0.5);
     c.fillRect(-7, -7, 14, 14); c.restore();
     // 2nd base
-    c.save(); c.translate(W * 0.18, H * 0.52); c.rotate(0.5);
+    c.save(); c.translate(secondX, secondY); c.rotate(0.5);
     c.fillRect(-7, -7, 14, 14); c.restore();
     // 3rd base
-    c.save(); c.translate(W * 0.07, H * 0.62); c.rotate(0.5);
+    c.save(); c.translate(thirdX, thirdY); c.rotate(0.5);
     c.fillRect(-7, -7, 14, 14); c.restore();
   },
 
   _drawPitcher(c, W, H) {
-    // Simple cartoon pitcher on the mound
-    const px = W * 0.38;
+    // Simple cartoon pitcher on the mound (centered)
+    const px = W * 0.50;
     const py = H * 0.58;
 
     // Body
@@ -749,7 +758,7 @@ const Renderer = {
   },
 
   _drawBatter(c, W, H, state) {
-    const bx = W * 0.14;
+    const bx = W * 0.50;
     const by = H * 0.73;
     const player = state.currentBatter;
     const accent = player ? player.colorAccent : '#002D62';
@@ -798,7 +807,7 @@ const Renderer = {
     if (!state.pitchActive || !state.hitZoneOpen) return;
 
     // Pulsing sweet spot zone near home plate
-    const hzX = W * 0.22;
+    const hzX = W * 0.50;
     const hzY = H * 0.72;
     const pulse = 0.8 + 0.2 * Math.sin(Date.now() / 150);
 
@@ -1185,12 +1194,12 @@ const Game = {
     const H = canvas.height;
 
     // Pitcher position (mound)
-    const startX = W * 0.38;
+    const startX = W * 0.50;
     const startY = H * 0.62;
 
     // Target: home plate area
-    const endX   = W * 0.16;
-    const endY   = H * 0.80;
+    const endX   = W * 0.50;
+    const endY   = H * 0.85;
 
     // Slight random wobble for pitch variation
     const wobbleX = (Math.random() - 0.5) * 30;
@@ -1223,14 +1232,15 @@ const Game = {
     GameState.pitchX += GameState.pitchVelX;
     GameState.pitchY += GameState.pitchVelY;
 
-    // Open hit zone when ball is ~30% through its path
+    // Open hit zone when ball is ~50% through its path (Y-based)
     const canvas = document.getElementById('game-canvas');
     const W = canvas.width;
-    const progress = 1 - (GameState.pitchX / (W * 0.38));
-    if (progress > 0.4) GameState.hitZoneOpen = true;
+    const H = canvas.height;
+    const progress = (GameState.pitchY - H * 0.62) / (H * 0.85 - H * 0.62);
+    if (progress > 0.5) GameState.hitZoneOpen = true;
 
     // Ball past home plate = auto-result
-    if (GameState.pitchX < 0 || GameState.pitchY > canvas.height * 0.88) {
+    if (GameState.pitchY > canvas.height * 0.88) {
       if (!GameState.swingPressed) {
         // Didn't swing: ball or called strike
         const isBall = (Math.random() < 0.35); // 35% chance of ball

@@ -757,8 +757,8 @@ const Renderer = {
     c.fill();
   },
 
-  _drawBatter(c, W, H, state) {
-    const bx = W * 0.50;
+ _drawBatter(c, W, H, state) {
+    const bx = W * 0.435;
     const by = H * 0.73;
     const player = state.currentBatter;
     const accent = player ? player.colorAccent : '#002D62';

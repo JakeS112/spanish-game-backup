@@ -199,55 +199,33 @@ const BattingEngine = {
    * @param {number} timing  - 0.0 (perfect) to 1.0 (worst)
    * @returns {string}       - 'hr'|'triple'|'double'|'single'|'out'
    */
-  function evaluateSwing(player, timing) {
-    // Normalized ratings (0–1)
-    const pwr = player.power / 100;
-    const con = player.contact / 100;
+ // 1. Calculate your original hit probabilities
+let hrProb     = pwr * 0.22 * (1 - timing * 0.7);
+let tripleProb = pwr * 0.10 * (1 - timing * 0.5);
+let doubleProb = con * 0.20 * (1 - timing * 0.4);
+let singleProb = con * 0.30 * (1 - timing * 0.3);
 
-    // Base probabilities
-    // These mirror the C++ lookup table in game.cpp
-    let hrProb     = pwr * 0.22 * (1 - timing * 0.7);
-    let tripleProb = pwr * 0.10 * (1 - timing * 0.5);
-    let doubleProb = con * 0.20 * (1 - timing * 0.4);
-    let singleProb = con * 0.30 * (1 - timing * 0.3);
+// 2. Sum the raw hit probabilities
+let totalHitProb = hrProb + tripleProb + doubleProb + singleProb;
 
-    // --- NEW SECTION: Force Out Probability to 25% ---
-    // Sum the raw hit probabilities
-    let totalHitProb = hrProb + tripleProb + doubleProb + singleProb;
+// 3. Scale the hits so they dynamically fill exactly 75%, leaving 25% for outs
+if (totalHitProb > 0) {
+    let scaleFactor = 0.75 / totalHitProb;
+    
+    hrProb     *= scaleFactor;
+    tripleProb *= scaleFactor;
+    doubleProb *= scaleFactor;
+    singleProb *= scaleFactor;
+} else {
+    // Fallback in case hit probability is 0 (e.g., stats are 0), 
+    // distributes the 75% evenly or by a default ratio
+    hrProb     = 0.15;
+    tripleProb = 0.05;
+    doubleProb = 0.20;
+    singleProb = 0.35;
+}
 
-    // Scale the hits so they dynamically fill exactly 75%, leaving 25% for outs
-    if (totalHitProb > 0) {
-        let scaleFactor = 0.75 / totalHitProb;
-        
-        hrProb     *= scaleFactor;
-        tripleProb *= scaleFactor;
-        doubleProb *= scaleFactor;
-        singleProb *= scaleFactor;
-    } else {
-        // Fallback distribution if hit probability is 0 (e.g., stats are 0)
-        hrProb     = 0.15;
-        tripleProb = 0.05;
-        doubleProb = 0.20;
-        singleProb = 0.35;
-    }
 
-    // Out probability fills the remaining 25%
-    let outProb = 0.25;
-    // -------------------------------------------------
-
-    // Poor timing penalty 
-    // (Adjusted to maintain the 25% out rate by shifting extra weight to singles)
-    if (timing > 0.7) {
-        let originalExtra = hrProb + tripleProb + doubleProb;
-        
-        hrProb     *= 0.1;
-        tripleProb *= 0.1;
-        doubleProb *= 0.3;
-        
-        let newExtra = hrProb + tripleProb + doubleProb;
-        // Take the lost percentage from HR/Triple/Double and dump it into singles
-        singleProb += (originalExtra - newExtra); 
-    }
 
     // Return the final probabilities for game logic determination
     return {
